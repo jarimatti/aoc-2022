@@ -1,5 +1,4 @@
 defmodule AoC2022.Day3 do
-
   def read_input(path \\ "priv/day3/test.txt") do
     path
     |> File.stream!()
@@ -51,5 +50,4 @@ defmodule AoC2022.Day3 do
       false -> c - ?A + 27
     end
   end
-
 end

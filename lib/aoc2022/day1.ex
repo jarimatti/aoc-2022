@@ -12,10 +12,11 @@ defmodule Aoc2022.Day1 do
     |> Enum.chunk_while(
       [],
       fn
-        ("", acc) -> {:cont, acc, []}
-        (e, acc) -> {:cont, [e | acc]}
+        "", acc -> {:cont, acc, []}
+        e, acc -> {:cont, [e | acc]}
       end,
-      fn acc -> {:cont, acc, []} end)
+      fn acc -> {:cont, acc, []} end
+    )
     |> Enum.map(&parse_numbers/1)
     |> Enum.to_list()
   end

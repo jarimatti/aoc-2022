@@ -29,26 +29,28 @@ defmodule Mix.Tasks.NewDay do
     Mix.Generator.create_file(path, data)
   end
 
-  Mix.Generator.embed_template(:module,
-  """
-  defmodule AoC2022.Day<%= @day %> do
+  Mix.Generator.embed_template(
+    :module,
+    """
+    defmodule AoC2022.Day<%= @day %> do
 
-    def read_input(path \\\\ "priv/day<%= @day %>/test.txt") do
-      path
-      |> File.stream!()
-      |> Enum.map(&String.trim/1)
+      def read_input(path \\\\ "priv/day<%= @day %>/test.txt") do
+        path
+        |> File.stream!()
+        |> Enum.map(&String.trim/1)
+      end
+
+      def part1(path \\\\ "priv/day<%= @day %>/test.txt") do
+        path
+        |> read_input()
+      end
+
+      def part2(path \\\\ "priv/day<%= @day %>/test.txt") do
+        path
+        |> read_input()
+      end
+
     end
-
-    def part1(path \\\\ "priv/day<%= @day %>/test.txt") do
-      path
-      |> read_input()
-    end
-
-    def part2(path \\\\ "priv/day<%= @day %>/test.txt") do
-      path
-      |> read_input()
-    end
-
-  end
-  """)
+    """
+  )
 end
