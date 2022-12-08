@@ -48,7 +48,7 @@ defmodule AoC2022.Day7 do
     path
     |> read_input()
     |> dir_sizes()
-    |> Enum.filter(fn x -> x <= 100000 end)
+    |> Enum.filter(fn x -> x <= 100_000 end)
     |> Enum.sum()
   end
 

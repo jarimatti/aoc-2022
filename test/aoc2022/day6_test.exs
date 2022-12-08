@@ -18,5 +18,4 @@ defmodule Aoc2022.Day6Test do
     assert(Day6.first_message_at("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg") == 29)
     assert(Day6.first_message_at("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw") == 26)
   end
-
 end
