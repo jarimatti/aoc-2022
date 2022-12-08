@@ -37,7 +37,7 @@ defmodule Mix.Tasks.NewDay do
       def read_input(path \\\\ "priv/day<%= @day %>/test.txt") do
         path
         |> File.stream!()
-        |> Enum.map(&String.trim/1)
+        |> Stream.map(&String.trim/1)
       end
 
       def part1(path \\\\ "priv/day<%= @day %>/test.txt") do
