@@ -28,14 +28,21 @@ defmodule AoC2022.Day9 do
     |> MapSet.size()
   end
 
-  def part2(path \\ "priv/day9/test.txt") do
+  def part2(path \\ "priv/day9/test.txt", tail_count \\ 9) do
     initial = {0, 0}
 
-    path
-    |> read_input()
-    |> Enum.to_list()
-    |> head_positions(initial)
-    |> tail_positions(initial)
+    positions =
+      path
+      |> read_input()
+      |> Enum.to_list()
+      |> head_positions(initial)
+
+    1..tail_count
+    |> Enum.reduce(positions, fn _, acc ->
+      pos = tail_positions(acc, initial)
+
+      pos
+    end)
     |> MapSet.new()
     |> MapSet.size()
   end
@@ -73,7 +80,7 @@ defmodule AoC2022.Day9 do
     tail_positions(head_positions, initial, [initial])
   end
 
-  def tail_positions([], _, positions), do: positions
+  def tail_positions([], _, positions), do: Enum.reverse(positions)
 
   def tail_positions([head | rest], current, positions) do
     if should_move(head, current) do
@@ -85,7 +92,9 @@ defmodule AoC2022.Day9 do
   end
 
   def should_move({x1, y1}, {x2, y2}) do
-    abs(x1 - x2) > 1 || abs(y2 - y1) > 1
+    dx = abs(x1 - x2)
+    dy = abs(y1 - y2)
+    dx > 1 || dy > 1
   end
 
   def move_tail({x1, y}, {x2, y}) when x1 > x2, do: {x2 + 1, y}
@@ -97,4 +106,29 @@ defmodule AoC2022.Day9 do
   def move_tail({x1, y1}, {x2, y2}) when x1 < x2 and y1 < y2, do: {x2 - 1, y2 - 1}
   def move_tail({x1, y1}, {x2, y2}) when x1 < x2 and y1 > y2, do: {x2 - 1, y2 + 1}
 
+  def draw(points, char \\ "#") do
+    rows = Enum.map(points, fn {_, y} -> y end)
+    cols = Enum.map(points, fn {x, _} -> x end)
+
+    left = Enum.min(cols)
+    right = Enum.max(cols)
+    top = Enum.max(rows)
+    bottom = Enum.min(rows)
+
+    set = MapSet.new(points)
+
+    for r <- top..bottom do
+      for c <- left..right do
+        if MapSet.member?(set, {c, r}) do
+          IO.write(char)
+        else
+          IO.write(".")
+        end
+      end
+
+      IO.puts("")
+    end
+
+    :ok
+  end
 end
