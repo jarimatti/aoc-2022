@@ -29,12 +29,12 @@ defmodule AoC2022.Day11 do
       %__MODULE__{monkey | items: [item | items]}
     end
 
-    def turn_part1(%__MODULE__{} = m, monkeys) do
+    def turn(%__MODULE__{} = m, monkeys, limiter) do
       new_monkeys =
         m.items
         |> Enum.reverse()
         |> Enum.reduce(monkeys, fn item, monkeys ->
-          worry = div(m.operation.(item), 3)
+          worry = limiter.(m.operation.(item))
           next_monkey = Test.eval(m.test, worry)
 
           Map.update!(monkeys, next_monkey, fn nm ->
@@ -118,7 +118,7 @@ defmodule AoC2022.Day11 do
       Enum.reduce(1..20, monkeys, fn _, ms ->
         Enum.reduce(ids, ms, fn id, ms ->
           m = Map.get(ms, id)
-          Monkey.turn_part1(m, ms)
+          Monkey.turn(m, ms, fn x -> div(x, 3) end)
         end)
       end)
 
@@ -129,8 +129,41 @@ defmodule AoC2022.Day11 do
     |> Enum.product()
   end
 
-  def part2(path \\ "priv/day11/test.txt") do
-    path
-    |> read_input()
+  def part2(path \\ "priv/day11/test.txt", rounds \\ 20) do
+    monkeys =
+      path
+      |> read_input()
+      |> Enum.to_list()
+      |> Map.new(fn m -> {m.id, m} end)
+
+    ids =
+      monkeys
+      |> Map.keys()
+      |> Enum.sort()
+
+    divisor =
+      monkeys
+      |> Enum.map(fn {_, m} -> m.test.divisible_by end)
+      |> Enum.reduce(&lowest_common_multiple/2)
+
+    final_monkeys =
+      Enum.reduce(1..rounds, monkeys, fn _, ms ->
+        Enum.reduce(ids, ms, fn id, ms ->
+          m = Map.get(ms, id)
+          # I couldn't figure this out on my own, had to peek in Elixir Slack
+          # and found solution here: https://github.com/sevenseacat/advent_of_code/blob/main/lib/y2022/day11.ex#L10
+          Monkey.turn(m, ms, fn x -> rem(x, divisor) end)
+        end)
+      end)
+
+    final_monkeys
+    |> Enum.map(fn {_, m} -> m.inspection_count end)
+    |> Enum.sort(:desc)
+    |> Enum.take(2)
+    |> Enum.product()
+  end
+
+  defp lowest_common_multiple(a, b) do
+    div(a * b, Integer.gcd(a, b))
   end
 end
