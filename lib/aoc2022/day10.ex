@@ -1,5 +1,4 @@
 defmodule AoC2022.Day10 do
-
   def read_input(path \\ "priv/day10/test.txt") do
     path
     |> File.stream!()
@@ -29,25 +28,30 @@ defmodule AoC2022.Day10 do
   end
 
   def execute(instructions, machine) do
-    Stream.scan(instructions, machine, fn op, m -> apply_instruction(m, op) end)
+    Stream.concat(
+      [machine],
+      Stream.scan(instructions, machine, fn op, m -> apply_instruction(m, op) end)
+    )
   end
 
   def part1(path \\ "priv/day10/test.txt") do
-    states = path
-    |> read_input()
-    |> execute(new_machine())
-    |> Enum.to_list()
+    states =
+      path
+      |> read_input()
+      |> execute(new_machine())
+      |> Enum.to_list()
 
     max_clock = List.last(states)
 
     timestamps = 20..max_clock.clock//40
 
-    {values, _} = timestamps
-    |> Enum.reduce({[], states}, fn ts, {xs, sts} ->
-      [s | _] = rest = Enum.drop_while(sts, fn %{clock: c} -> c < ts-1 end)
+    {values, _} =
+      timestamps
+      |> Enum.reduce({[], states}, fn ts, {xs, sts} ->
+        [s | _] = rest = Enum.drop_while(sts, fn %{clock: c} -> c < ts - 1 end)
 
-      {[Map.put(s, :at, ts) | xs], rest}
-    end)
+        {[Map.put(s, :at, ts) | xs], rest}
+      end)
 
     values
     |> Enum.map(fn s -> s.at * s.x end)
@@ -58,5 +62,4 @@ defmodule AoC2022.Day10 do
     path
     |> read_input()
   end
-
 end

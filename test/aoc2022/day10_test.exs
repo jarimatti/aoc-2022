@@ -10,5 +10,4 @@ defmodule Aoc2022.Day10Test do
   test "part 1 input solution is correct" do
     assert(Day10.part1("priv/day10/input.txt") == 14520)
   end
-
 end
