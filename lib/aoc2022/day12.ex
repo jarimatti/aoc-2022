@@ -41,9 +41,10 @@ defmodule AoC2022.Day12 do
     xa = point_value(Map.get(map, a))
 
     case point_value(Map.get(map, b, nil)) do
-      nil -> :ok
+      nil ->
+        :ok
 
-      xb when abs(xb-xa) <= 1 ->
+      xb when abs(xb - xa) <= 1 ->
         va = :digraph.add_vertex(graph, a)
         vb = :digraph.add_vertex(graph, b)
         :digraph.add_edge(graph, va, vb)
@@ -84,7 +85,34 @@ defmodule AoC2022.Day12 do
   end
 
   def part2(path \\ "priv/day12/test.txt") do
-    path
-    |> read_input()
+    map = read_input(path)
+    graph = to_graph(map)
+
+    ps_start =
+      Enum.filter(map, fn
+        {p, :start} -> p
+        {p, 0} -> p
+        _ -> nil
+      end)
+      |> Enum.map(fn {p, _} -> p end)
+
+    p_end =
+      Enum.find_value(map, fn
+        {p, :end} -> p
+        _ -> nil
+      end)
+
+    ps_start
+    |> Enum.map(fn p_start ->
+      case :digraph.get_short_path(graph, p_start, p_end) do
+        false -> {:error, :no_path_found, {map, graph, p_start, p_end}}
+        path -> {:ok, length(path) - 1}
+      end
+    end)
+    |> Enum.filter(fn
+      {:error, _, _} -> false
+      {:ok, _} -> true
+    end)
+    |> Enum.min()
   end
 end
