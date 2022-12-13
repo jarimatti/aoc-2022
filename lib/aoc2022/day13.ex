@@ -21,7 +21,7 @@ defmodule AoC2022.Day13 do
   def part1(path \\ "priv/day13/test.txt") do
     path
     |> read_input()
-    |> Enum.map(fn {a, b} -> in_order(a,b) end)
+    |> Enum.map(fn {a, b} -> in_order(a, b) end)
     |> Enum.with_index(1)
     |> Enum.filter(fn {v, _} -> v end)
     |> Enum.map(fn {_, v} -> v end)
@@ -31,9 +31,11 @@ defmodule AoC2022.Day13 do
   def in_order([a | _], [b | _]) when is_integer(a) and is_integer(b) and a < b do
     true
   end
+
   def in_order([a | _], [b | _]) when is_integer(a) and is_integer(b) and a > b do
     false
   end
+
   # This takes care of equal numbers and equal lists as elements.
   def in_order([a | as], [b | bs]) when a == b do
     in_order(as, bs)
@@ -42,6 +44,7 @@ defmodule AoC2022.Day13 do
   def in_order([a | as], [b | _] = bs) when is_integer(a) and is_list(b) do
     in_order([[a] | as], bs)
   end
+
   def in_order([a | _] = as, [b | bs]) when is_list(a) and is_integer(b) do
     in_order(as, [[b] | bs])
   end
@@ -58,9 +61,10 @@ defmodule AoC2022.Day13 do
   end
 
   def part2(path \\ "priv/day13/test.txt") do
-    signals = path
-    |> read_input()
-    |> Enum.flat_map(fn {a,b} -> [a,b] end)
+    signals =
+      path
+      |> read_input()
+      |> Enum.flat_map(fn {a, b} -> [a, b] end)
 
     divider_1 = [[2]]
     divider_2 = [[6]]
