@@ -100,11 +100,9 @@ defmodule AoC2022.Day14 do
   end
 
   defp maybe_move(cave, pos) do
-    with false <- is_free(cave, down(pos)),
-         false <- is_free(cave, down_left(pos)),
-         false <- is_free(cave, down_right(pos)) do
-      {:halt, pos}
-    end
+    [&down/1, &down_left/1, &down_right/1]
+    |> Enum.map(fn f -> is_free(cave, f.(pos)) end)
+    |> Enum.find({:halt, pos}, fn x -> x end)
   end
 
   defp down({x, y}), do: {x, y + 1}
