@@ -7,7 +7,7 @@ defmodule AoC2022.Day14 do
     |> Enum.reduce(%{}, &add_path_to_cave/2)
   end
 
-  def add_path_to_cave(path, cave) do
+  defp add_path_to_cave(path, cave) do
     path
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.flat_map(&path_points/1)
@@ -16,13 +16,13 @@ defmodule AoC2022.Day14 do
     end)
   end
 
-  def path_points([{x0, y}, {x1, y}]) do
+  defp path_points([{x0, y}, {x1, y}]) do
     for x <- min(x0, x1)..max(x0, x1) do
       {x, y}
     end
   end
 
-  def path_points([{x, y0}, {x, y1}]) do
+  defp path_points([{x, y0}, {x, y1}]) do
     for y <- min(y0, y1)..max(y0, y1) do
       {x, y}
     end
