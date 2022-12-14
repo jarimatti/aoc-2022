@@ -7,7 +7,7 @@ defmodule AoC2022.Day14 do
       |> Stream.map(&parse_path/1)
       |> Enum.reduce(%{}, &add_path_to_cave/2)
 
-    Map.put(cave, {500, 0}, :start)
+    Map.put(cave, start_pos(), :start)
   end
 
   defp add_path_to_cave(path, cave) do
@@ -47,6 +47,25 @@ defmodule AoC2022.Day14 do
   end
 
   def cave_to_string(cave) do
+    {{min_x, min_y}, {max_x, max_y}} = extents(cave)
+
+    Enum.map(min_y..max_y, fn y ->
+      Enum.map(
+        min_x..max_x,
+        fn x ->
+          case Map.get(cave, {x, y}, :empty) do
+            :empty -> "."
+            :rock -> "#"
+            :sand -> "o"
+            :start -> "+"
+          end
+        end
+      )
+    end)
+    |> Enum.join("\n")
+  end
+
+  def extents(cave) do
     points = Map.keys(cave)
 
     {min_x, max_x} =
@@ -63,21 +82,41 @@ defmodule AoC2022.Day14 do
     bottom_right = {max_x, max_y}
 
     {top_left, bottom_right}
+  end
 
-    Enum.map(min_y..max_y, fn y ->
-      Enum.map(
-        min_x..max_x,
-        fn x ->
-          case Map.get(cave, {x, y}, :empty) do
-            :empty -> "."
-            :rock -> "#"
-            :sand -> "o"
-            :start -> "+"
-          end
-        end
-      )
-    end)
-    |> Enum.join("\n")
+  def start_pos(), do: {500, 0}
+
+  def drop_sand(cave) do
+    start = start_pos()
+
+    drop_sand(cave, start)
+  end
+
+  defp drop_sand(cave, pos) do
+    case maybe_move(cave, pos) do
+      {:cont, new_pos} -> drop_sand(cave, new_pos)
+      {:halt, pos} -> Map.put(cave, pos, :sand)
+    end
+  end
+
+  defp maybe_move(cave, pos) do
+    with false <- is_free(cave, down(pos)),
+         false <- is_free(cave, down_left(pos)),
+         false <- is_free(cave, down_right(pos)) do
+      {:halt, pos}
+    end
+  end
+
+  defp down({x, y}), do: {x, y + 1}
+  defp down_left({x, y}), do: {x - 1, y + 1}
+  defp down_right({x, y}), do: {x + 1, y + 1}
+
+  defp is_free(cave, pos) do
+    case Map.get(cave, pos) do
+      nil -> {:cont, pos}
+      :rock -> false
+      :sand -> false
+    end
   end
 
   def part1(path \\ "priv/day14/test.txt") do
