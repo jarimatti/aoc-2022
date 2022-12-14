@@ -86,17 +86,40 @@ defmodule AoC2022.Day14 do
 
   def start_pos(), do: {500, 0}
 
-  def drop_sand(cave) do
-    start = start_pos()
-
-    drop_sand(cave, start)
+  def drop_all_sand(cave, c \\ 10) do
+    drop_all_sand(cave, start_pos(), extents(cave), c)
   end
 
-  defp drop_sand(cave, pos) do
-    case maybe_move(cave, pos) do
-      {:cont, new_pos} -> drop_sand(cave, new_pos)
-      {:halt, pos} -> Map.put(cave, pos, :sand)
+  def drop_all_sand(cave, _start, _e, 0) do
+    {:error, :limit, cave}
+  end
+
+  def drop_all_sand(cave, start, e, c) do
+    case drop_one_sand(cave, start, e) do
+      {:cont, cave} -> drop_all_sand(cave, start, e, c-1)
+      {:halt, cave} -> cave
     end
+  end
+
+  defp drop_one_sand(cave, {x, y} = pos, {{min_x, _}, {max_x, max_y}} = e) when x in min_x..max_x and y <= max_y do
+    case maybe_move(cave, pos) do
+      {:cont, new_pos} ->
+        drop_one_sand(cave, new_pos, e)
+      {:halt, pos} ->
+        check_and_put(cave, pos, e)
+    end
+  end
+
+  defp drop_one_sand(cave, _pos, _e) do
+    {:halt, cave}
+  end
+
+  def check_and_put(cave, {x, y} = pos, {{min_x, _}, {max_x, max_y}}) when x in min_x..max_x and y <= max_y do
+    {:cont, Map.put(cave, pos, :sand)}
+  end
+
+  def check_and_put(cave, _, _) do
+    {:halt, cave}
   end
 
   defp maybe_move(cave, pos) do
@@ -120,6 +143,8 @@ defmodule AoC2022.Day14 do
   def part1(path \\ "priv/day14/test.txt") do
     path
     |> read_input()
+    |> drop_all_sand(10_000)
+    |> Enum.count(fn {_k, v} -> v == :sand end)
   end
 
   def part2(path \\ "priv/day14/test.txt") do
