@@ -114,6 +114,10 @@ defmodule AoC2022.Day14 do
     {:halt, cave}
   end
 
+  def check_and_put(cave, {500, 0} = pos, _) do
+    {:halt, Map.put(cave, pos, :sand)}
+  end
+
   def check_and_put(cave, {x, y} = pos, {{min_x, _}, {max_x, max_y}}) when x in min_x..max_x and y <= max_y do
     {:cont, Map.put(cave, pos, :sand)}
   end
@@ -144,11 +148,33 @@ defmodule AoC2022.Day14 do
     path
     |> read_input()
     |> drop_all_sand(10_000)
-    |> Enum.count(fn {_k, v} -> v == :sand end)
+    |> count_sand()
   end
 
   def part2(path \\ "priv/day14/test.txt") do
     path
     |> read_input()
+    |> add_bottom()
+    |> drop_all_sand(50_000)
+    |> count_sand()
+  end
+
+  defp count_sand(cave) do
+    Enum.count(cave, fn {_k, v} -> v == :sand end)
+  end
+
+
+  defp add_bottom(cave) do
+    {{min_x, min_y}, {max_x, max_y}} = extents(cave)
+
+    floor_y = max_y + 2
+    height = max_y - min_y
+
+    min_x = min_x - height - 10
+    max_x = max_x + height + 10
+
+    Enum.reduce(min_x..max_x, cave, fn x, c ->
+      Map.put(c, {x, floor_y}, :rock)
+    end)
   end
 end
