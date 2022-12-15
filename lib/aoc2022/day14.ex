@@ -96,15 +96,17 @@ defmodule AoC2022.Day14 do
 
   def drop_all_sand(cave, start, e, c) do
     case drop_one_sand(cave, start, e) do
-      {:cont, cave} -> drop_all_sand(cave, start, e, c-1)
+      {:cont, cave} -> drop_all_sand(cave, start, e, c - 1)
       {:halt, cave} -> cave
     end
   end
 
-  defp drop_one_sand(cave, {x, y} = pos, {{min_x, _}, {max_x, max_y}} = e) when x in min_x..max_x and y <= max_y do
+  defp drop_one_sand(cave, {x, y} = pos, {{min_x, _}, {max_x, max_y}} = e)
+       when x in min_x..max_x and y <= max_y do
     case maybe_move(cave, pos) do
       {:cont, new_pos} ->
         drop_one_sand(cave, new_pos, e)
+
       {:halt, pos} ->
         check_and_put(cave, pos, e)
     end
@@ -118,7 +120,8 @@ defmodule AoC2022.Day14 do
     {:halt, Map.put(cave, pos, :sand)}
   end
 
-  def check_and_put(cave, {x, y} = pos, {{min_x, _}, {max_x, max_y}}) when x in min_x..max_x and y <= max_y do
+  def check_and_put(cave, {x, y} = pos, {{min_x, _}, {max_x, max_y}})
+      when x in min_x..max_x and y <= max_y do
     {:cont, Map.put(cave, pos, :sand)}
   end
 
@@ -162,7 +165,6 @@ defmodule AoC2022.Day14 do
   defp count_sand(cave) do
     Enum.count(cave, fn {_k, v} -> v == :sand end)
   end
-
 
   defp add_bottom(cave) do
     {{min_x, min_y}, {max_x, max_y}} = extents(cave)
