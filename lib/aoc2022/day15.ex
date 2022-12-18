@@ -112,11 +112,24 @@ defmodule AoC2022.Day15 do
     end)
   end
 
+  defp sensors_that_see_point(sensors, point) do
+    Enum.filter(sensors, fn {s, r} ->
+      manhattan_distance(s, point) <= r
+    end)
+  end
+
   def sensor_range_on_row({{x, y}, r}, row) do
     dy = abs(row - y)
     dx = r - dy
 
     Range.new(x - dx, x + dx)
+  end
+
+  def sensor_range_on_col({{x, y}, r}, col) do
+    dx = abs(col - x)
+    dy = r - dx
+
+    Range.new(y - dy, y + dy)
   end
 
   def count_common_points(range, ranges) do
@@ -127,8 +140,45 @@ defmodule AoC2022.Day15 do
     |> Enum.count()
   end
 
-  def part2(path \\ "priv/day15/test.txt") do
-    path
-    |> read_input()
+  def part2(range, path \\ "priv/day15/test.txt") do
+    {sensors, _beacons, _extent} = read_input(path)
+
+    c_min = Enum.min(range)
+    c_max = Enum.max(range)
+
+    ys =
+      range
+      |> Enum.filter(fn y ->
+        interesting_sensors = sensors_that_see_row(sensors, y)
+
+        ranges =
+          interesting_sensors
+          |> Enum.map(fn s -> sensor_range_on_row(s, y) end)
+          |> merge_ranges()
+
+        not Enum.any?(ranges, fn r ->
+          Enum.member?(r, c_min) and Enum.member?(r, c_max)
+        end)
+      end)
+
+    {x, y} =
+      range
+      |> Stream.flat_map(fn x ->
+        y =
+          Enum.find(ys, fn y ->
+            sensors
+            |> sensors_that_see_point({x, y})
+            |> Enum.empty?()
+          end)
+
+        case y do
+          nil -> []
+          y -> [{x, y}]
+        end
+      end)
+      |> Enum.to_list()
+      |> hd()
+
+    x * 4_000_000 + y
   end
 end
